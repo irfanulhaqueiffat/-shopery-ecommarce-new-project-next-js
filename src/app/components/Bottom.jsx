@@ -67,12 +67,12 @@ const Bottom = () => {
               >
                 Contacs
               </Link>
-              <Link
-                href="/Dashbord"
+              <a
+                href="https://frox-dashboard.vercel.app/"
                 className="text-gray-800 cursor-pointer text-sm hover:text-green-600 transition"
               >
                 Dashboard
-              </Link>
+              </a>
 
             </div>
 
