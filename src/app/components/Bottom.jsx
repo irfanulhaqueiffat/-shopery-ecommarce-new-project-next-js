@@ -41,7 +41,7 @@ const Bottom = () => {
               </Link>
 
               <Link
-                href="/"
+                href="/Dashboard"
                 className="text-gray-800 cursor-pointer hover:text-green-600 transition"
               >
                 Pages

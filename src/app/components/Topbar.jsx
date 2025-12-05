@@ -32,7 +32,7 @@ const Topbar = () => {
   };
 
   return (
-    <section id="topbar" className="py-3 border-b border-gray-300">
+    <section id="topbar" className="py-3 border-b border-gray-300 sticky top-0 left-0 w-full z-50 shadow-md mt-0 bg-white">
       <div className="container mx-auto px-4 text-[#666666] flex flex-col sm:flex-row justify-between items-center gap-3">
 
         {/* Left: Location */}

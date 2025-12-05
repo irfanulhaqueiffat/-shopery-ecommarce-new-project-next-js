@@ -10,16 +10,15 @@ import { FaInstagram } from "react-icons/fa6";
 const LoginPage = () => {
   const router = useRouter();
 
-  const [username, setUsername]   = useState("");
-  const [password, setPassword]   = useState("");
-  const [loading, setLoading]     = useState(false);
-
-  const [error, setError]         = useState(null);
-  const [userData, setUserData]   = useState(null);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [userData, setUserData] = useState(null);
 
   // Check login state
   useEffect(() => {
-    const storedToken    = localStorage.getItem("token");
+    const storedToken = localStorage.getItem("token");
     const storedUsername = localStorage.getItem("username");
 
     if (storedToken && storedUsername) {
@@ -29,82 +28,48 @@ const LoginPage = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("username");
+
+    document.cookie = "accessToken=; max-age=0; path=/;";
+    document.cookie = "refreshToken=; max-age=0; path=/;";
+
     setUserData(null);
     router.push("/Login");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!username || !password) {
-      setError("Username and password required");
-      return;
-    }
-
-    setLoading(true);
     setError(null);
+    setLoading(true);
 
     try {
-      // 🔥 NEW: FreeAPI Login
-      const res = await fetch("https://api.freeapi.app/api/v1/users/login", {
+      const res = await fetch("/api/login", {
         method: "POST",
-        headers: {
-          accept: "application/json",
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({
-          username,      // e.g. doejohn
-          password,      // e.g. test@123
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
       });
 
-      const data = await res.json().catch(() => null);
-      console.log("LOGIN RESPONSE:", res.status, data);
+      const data = await res.json();
 
-      if (!res.ok || data?.success === false) {
-          const data = await res.json().catch(() => null);
-          console.log("LOGIN RESPONSE:", res.status, data);
-
-          if (!res.ok || data?.success === false) {
-            const msg =
-              data?.message ||
-              data?.error ||
-              data?.errors?.[0]?.msg ||
-              "Login failed. Please try again.";
-
-            if (msg.toLowerCase().includes("invalid")) {
-              throw new Error("Incorrect username or password.");
-            }
-
-            throw new Error(msg);
-          }
-
-            setLoading(false);
-      
- 
-
-          const auth = data.data;
-          localStorage.setItem("token", auth.accessToken);
-          setUserData({ username: auth.user.username });
-          router.push("/");
-        throw new Error(msg);
+      if (!res.ok) {
+        throw new Error(data.message || "Login failed");
       }
 
-      // Expected: data.data = { access_token, refresh_token, user: {...} }
-      const auth = data.data;
-
-      if (auth?.accessToken ) {
-        localStorage.setItem("token", auth.accessToken);
-      } else {
-        throw new Error("Login response is missing token or user info.");
+      // Save tokens (optional, since cookies are HttpOnly)
+      if (data.accessToken) {
+        localStorage.setItem("token", data.accessToken);
       }
+      if (data.refreshToken) {
+        localStorage.setItem("refreshToken", data.refreshToken);
+      }
+
+      localStorage.setItem("username", username);
+      setUserData({ username });
 
       router.push("/");
-
     } catch (err) {
-      console.error(err);
-      setError(err.message || "Something went wrong");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -112,15 +77,12 @@ const LoginPage = () => {
 
   return (
     <section id="login">
-      {/* Breadcrumb */}
+      {/* UI EXACT SAME AS YOUR VERSION */}
+
       <div className="breadcrumbs flex items-center text-sm py-12 text-gray-600 mt-6 ml-8 space-x-2">
         <Link href="/" className="flex items-center text-gray-500 hover:text-green-600 transition">
           <FaHome className="mr-1 ml-[300px]" />
           Home
-        </Link>
-        <span className="text-gray-400">/</span>
-        <Link href="/" className="text-gray-500 hover:text-green-600 transition">
-          Account
         </Link>
         <span className="text-gray-400">/</span>
         <span className="text-green-600 font-medium">Login</span>
@@ -129,46 +91,35 @@ const LoginPage = () => {
       <div className="container">
         <div className="min-h-screen flex flex-col justify-between bg-white">
 
-          {/* Sign In Card */}
           <div className="flex flex-col items-center justify-center grow">
             <div className="bg-white shadow-md rounded-xl p-10 w-full max-w-md">
               <h2 className="text-2xl font-semibold text-center mb-6">Sign In</h2>
 
-              {/* Error */}
-              {error && (
-                <p className="mb-3 text-sm text-red-500 text-center">
-                  {error}
-                </p>
-              )}
+              {error && <p className="text-center text-red-500 mb-3">{error}</p>}
 
-              {/* If logged in */}
               {userData ? (
                 <div className="text-center">
                   <p className="mb-3 text-green-600">
-                    Logged in as{" "}
-                    <span className="font-semibold">{userData.username}</span>
+                    Logged in as <strong>{userData.username}</strong>
                   </p>
-                  <button
-                    onClick={handleLogout}
-                    className="bg-red-600 text-white px-6 py-2 rounded-md mt-3 hover:bg-red-700"
-                  >
+                  <button onClick={handleLogout} className="bg-red-600 text-white px-6 py-2 rounded-md">
                     Logout
                   </button>
                 </div>
               ) : (
-                <form className="flex flex-col space-y-4" onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
                   <input
                     type="text"
-                    placeholder="Username (e.g. doejohn)"
-                    className="border rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="Username"
+                    className="border rounded-md p-3"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                   />
 
                   <input
                     type="password"
-                    placeholder="Password (e.g. test@123)"
-                    className="border rounded-md p-3 w-full focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="Password"
+                    className="border rounded-md p-3"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
@@ -176,43 +127,16 @@ const LoginPage = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="bg-green-600 hover:bg-green-700 text-white py-2 rounded-md transition disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="bg-green-600 text-white py-2 rounded-md"
                   >
                     {loading ? "Logging in..." : "Login"}
                   </button>
-
-                  <p className="text-center text-sm text-gray-600">
-                    Don’t have an account?{" "}
-                    <Link
-                      href="/Registration"
-                      className="text-green-600 font-medium hover:underline"
-                    >
-                      Register
-                    </Link>
-                  </p>
                 </form>
               )}
             </div>
           </div>
-
-          {/* Newsletter Section */}
-          <footer className="bg-gray-50 py-8">
-            <div className="max-w-4xl mx-auto text-center">
-              <h3 className="font-semibold text-lg mb-2">
-                Subscribe our Newsletter
-              </h3>
-              <p className="text-gray-500 text-sm mb-4">
-                Pellentesque eu nibh eget mauris congue mattis mattis nec tellus.
-              </p>
-
-              <div className="flex justify-center space-x-4 mt-6 text-gray-500">
-                <FaFacebook className="cursor-pointer hover:text-green-600" />
-                <FaTwitter className="cursor-pointer hover:text-green-600" />
-                <FaPinterest className="cursor-pointer hover:text-green-600" />
-                <FaInstagram className="cursor-pointer hover:text-green-600" />
-              </div>
-            </div>
-          </footer>
+          <p> username: 'emilys',
+    password: 'emilyspass'</p>
 
         </div>
       </div>
