@@ -28,7 +28,7 @@ const Header = () => {
           {/* Menu Items + Search */}
           <div className="flex items-center gap-6">
 {/* Search Bar */}
-<div className="hidden md:flex items-center w-[498px]">
+<div className="hidden md:flex items-center w-full md:max-w-[498px]">
 
   {/* Input + Icon Wrapper */}
   <div className="relative flex-1">

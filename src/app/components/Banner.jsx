@@ -23,7 +23,7 @@ const Banner = () => {
               <p className='text-xs sm:text-sm text-green-500 font-normal mb-2'>
                 Welcome to shopery
               </p>
-              <h1 className='w-full md:w-[536px] text-2xl sm:text-3xl md:text-4xl lg:text-[56px] text-black font-semibold pb-3 md:pb-5'>
+              <h1 className='w-full max-w-2xl text-2xl sm:text-3xl md:text-4xl lg:text-[56px] text-black font-semibold pb-3 md:pb-5'>
                 Fresh & Healthy Organic Food
               </h1>
 

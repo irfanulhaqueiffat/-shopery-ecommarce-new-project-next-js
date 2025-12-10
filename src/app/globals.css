@@ -5,8 +5,11 @@
 
 
 .container{
-  width: 1320px;
-  margin:auto;
+  max-width: 1320px;
+  width: 100%;
+  margin: 0 auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 .breadcrumbs{
   background-image:url('../../public/images/Breadcrumbs\(1\).png');

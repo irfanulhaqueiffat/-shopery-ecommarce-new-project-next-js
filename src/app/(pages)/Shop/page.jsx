@@ -113,9 +113,9 @@ const page = () => {
     <>
      <section className="py-10 md:py-14 bg-green-700">
         {/* Breadcrumb */}
-        <div className="breadcrumbs flex items-center text-sm py-12 text-gray-600 mt-6 ml-8 space-x-2">
+        <div className="breadcrumbs flex flex-wrap items-center text-sm py-12 text-gray-600 lg:mt-6 lg:ml-8 space-x-2">
           <Link href="/" className="flex items-center text-gray-500 hover:text-green-600 transition">
-            <FaHome className="mr-1 ml-[300px]" />
+            <FaHome className="mr-1 lg:ml-[300px]" />
             Home
           </Link>
           <span className="text-gray-300">/</span>
